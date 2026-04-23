@@ -1,0 +1,170 @@
+openapi: 3.0.3
+info:
+  title: Empréstimo API (Aula 02)
+  version: 1.0.0
+paths:
+  /emprestimos:
+    get:
+      summary: Lista todos os empréstimos com parcelas
+      responses:
+        '200':
+          description: Operação bem-sucedida
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmprestimoResponse'
+    post:
+      summary: Cadastra um novo empréstimo e calcula as parcelas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmprestimoRequest'
+      responses:
+        '201':
+          description: Empréstimo criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmprestimoResponse'
+  /emprestimos/{id}:
+    delete:
+      summary: Cancela (exclui) um empréstimo pelo ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Empréstimo removido com sucesso
+        '404':
+          description: Empréstimo não encontrado
+  /reguladora/taxas:
+    post:
+      summary: Simula aprovação e retorna taxa de juros mensal (Agência Reguladora)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxaRequest'
+      responses:
+        '200':
+          description: Taxa aprovada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxaResponse'
+components:
+  schemas:
+    EmprestimoRequest:
+      type: object
+      required:
+        - clienteId
+        - valorTotal
+        - quantidadeParcelas
+        - tipoAmortizacao
+        - taxaJurosMensal
+      properties:
+        clienteId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        valorTotal:
+          type: number
+          format: double
+          example: 10000.00
+        quantidadeParcelas:
+          type: integer
+          example: 12
+        tipoAmortizacao:
+          type: string
+          enum: [SAC, PRICE]
+          example: "SAC"
+        taxaJurosMensal:
+          type: integer
+          example: 12
+    EmprestimoResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        clienteId:
+          type: string
+          format: uuid
+        valorTotal:
+          type: number
+          format: double
+        quantidadeParcelas:
+          type: integer
+        tipoAmortizacao:
+          type: string
+          enum: [SAC, PRICE]
+        status:
+          type: string
+          enum: [PENDENTE, PAGO]
+        taxaJurosMensal:
+          type: integer
+        parcelas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parcela'
+    Parcela:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ordem:
+          type: integer
+        dataVencimento:
+          type: string
+          format: date
+        valorAmortizacao:
+          type: number
+          format: double
+        valorJuros:
+          type: number
+          format: double
+        valorPrestacao:
+          type: number
+          format: double
+        status:
+          type: string
+          enum: [PENDENTE, PAGA]
+        saldoDevedor:
+          type: number
+          format: double
+    TaxaRequest:
+      type: object
+      required:
+        - clienteId
+      properties:
+        clienteId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        valorSolicitado:
+          type: number
+          format: double
+          example: 10000.00
+        prazoMeses:
+          type: integer
+          example: 12
+    TaxaResponse:
+      type: object
+      properties:
+        aprovado:
+          type: boolean
+          example: true
+        taxaJurosMensal:
+          type: integer
+          example: 12
+
