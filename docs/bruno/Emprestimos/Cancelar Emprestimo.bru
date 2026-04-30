@@ -1,0 +1,22 @@
+meta {
+  name: Cancelar Emprestimo
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{base_url}}/emprestimos/{{emprestimo_id}}
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: gerente
+  password: gerente123
+}
+
+docs {
+  Substitua {{emprestimo_id}} pelo UUID do empréstimo retornado ao contratar.
+  Apenas Gerente pode cancelar empréstimos.
+}
+

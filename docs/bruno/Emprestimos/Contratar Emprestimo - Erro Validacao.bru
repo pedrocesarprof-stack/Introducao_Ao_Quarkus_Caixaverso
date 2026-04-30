@@ -1,0 +1,30 @@
+meta {
+  name: Contratar Emprestimo - Erro Validacao
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/emprestimos
+  body: json
+  auth: basic
+}
+
+auth:basic {
+  username: usuario
+  password: usuario123
+}
+
+body:json {
+  {
+    "clienteId": "{{cliente_id}}",
+    "valorTotal": 50.00,
+    "quantidadeParcelas": 0,
+    "tipoAmortizacao": "SAC"
+  }
+}
+
+docs {
+  valorTotal abaixo de 100 e parcelas = 0 devem disparar erros de validacao (400).
+}
+

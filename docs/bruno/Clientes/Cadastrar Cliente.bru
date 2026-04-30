@@ -1,0 +1,30 @@
+meta {
+  name: Cadastrar Cliente
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/clientes
+  body: json
+  auth: basic
+}
+
+auth:basic {
+  username: usuario
+  password: usuario123
+}
+
+body:json {
+  {
+    "nome": "João da Silva",
+    "documento": "12345678901",
+    "cep": "01310100",
+    "numero": "1000",
+    "complemento": "Apto 42"
+  }
+}
+
+vars:pre-request {
+  base_url: http://localhost:8080
+}

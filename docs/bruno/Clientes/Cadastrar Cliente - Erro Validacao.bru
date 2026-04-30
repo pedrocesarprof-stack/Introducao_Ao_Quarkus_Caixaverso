@@ -1,0 +1,26 @@
+meta {
+  name: Cadastrar Cliente - Sem Nome (erro validacao)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/clientes
+  body: json
+  auth: basic
+}
+
+auth:basic {
+  username: usuario
+  password: usuario123
+}
+
+body:json {
+  {
+    "nome": "",
+    "documento": "12345678901",
+    "cep": "01310100",
+    "numero": "100"
+  }
+}
+
