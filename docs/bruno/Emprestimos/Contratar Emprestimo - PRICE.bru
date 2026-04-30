@@ -1,0 +1,26 @@
+meta {
+  name: Contratar Emprestimo - PRICE
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/emprestimos
+  body: json
+  auth: basic
+}
+
+auth:basic {
+  username: usuario
+  password: usuario123
+}
+
+body:json {
+  {
+    "clienteId": "{{cliente_id}}",
+    "valorTotal": 15000.00,
+    "quantidadeParcelas": 36,
+    "tipoAmortizacao": "PRICE"
+  }
+}
+

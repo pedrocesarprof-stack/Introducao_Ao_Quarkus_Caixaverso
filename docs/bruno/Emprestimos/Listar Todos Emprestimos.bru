@@ -1,0 +1,17 @@
+meta {
+  name: Listar Todos Emprestimos
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/emprestimos
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: usuario
+  password: usuario123
+}
+

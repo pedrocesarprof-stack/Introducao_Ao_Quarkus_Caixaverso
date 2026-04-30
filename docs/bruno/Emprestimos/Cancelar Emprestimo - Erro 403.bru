@@ -1,0 +1,21 @@
+meta {
+  name: Cancelar Emprestimo - Sem Permissao (erro 403)
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/emprestimos/{{emprestimo_id}}
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: usuario
+  password: usuario123
+}
+
+docs {
+  Usuario comum NAO pode cancelar. Deve retornar 403 Forbidden.
+}
+

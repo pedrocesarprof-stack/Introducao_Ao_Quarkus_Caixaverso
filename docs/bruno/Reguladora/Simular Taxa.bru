@@ -1,0 +1,25 @@
+meta {
+  name: Simular Taxa
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/reguladora/taxas
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "clienteId": "{{cliente_id}}",
+    "valorSolicitado": 5000.00,
+    "prazoMeses": 12
+  }
+}
+
+docs {
+  Endpoint interno da reguladora (mock local).
+  Retorna aprovado=true com taxa aleatoria entre 9% e 16%.
+}
+
