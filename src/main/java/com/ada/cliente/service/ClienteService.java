@@ -4,12 +4,14 @@ import com.ada.cliente.client.ViaCepClient;
 import com.ada.cliente.dto.ClienteRequest;
 import com.ada.cliente.dto.ClienteResponse;
 import com.ada.cliente.dto.ViaCepResponse;
+import com.ada.cliente.model.Cliente;
+import com.ada.cliente.model.Endereco;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,16 +21,22 @@ public class ClienteService {
     @RestClient
     ViaCepClient viaCepClient;
 
-    private static final List<ClienteResponse> clientes = new ArrayList<>();
-
     public List<ClienteResponse> listarTodos() {
-        return clientes;
+        return Cliente.<Cliente>listAll().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
+    @Transactional
     public ClienteResponse cadastrar(ClienteRequest request) {
-        ViaCepResponse endereco = viaCepClient.buscarEnderecoPorCep(request.getCep());
+        boolean documentoJaExiste = Cliente.count("documento", request.getDocumento()) > 0;
+        if (documentoJaExiste) {
+            throw new BadRequestException("Já existe um cliente cadastrado com o documento informado.");
+        }
 
-        if (endereco == null || "true".equals(endereco.getErro())) {
+        ViaCepResponse enderecoVia = viaCepClient.buscarEnderecoPorCep(request.getCep());
+
+        if (enderecoVia == null || "true".equals(enderecoVia.getErro())) {
             throw new BadRequestException("CEP não encontrado ou inválido.");
         }
 
@@ -36,27 +44,42 @@ public class ClienteService {
                 ? request.getComplemento()
                 : "N/A";
 
-        ClienteResponse response = ClienteResponse.builder()
+        Endereco endereco = Endereco.builder()
                 .id(UUID.randomUUID())
-                .nome(request.getNome())
-                .documento(request.getDocumento())
                 .cep(request.getCep())
-                .logradouro(endereco.getLogradouro())
-                .bairro(endereco.getBairro())
+                .logradouro(enderecoVia.getLogradouro())
+                .bairro(enderecoVia.getBairro())
                 .numero(request.getNumero())
                 .complemento(complemento)
                 .build();
 
-        clientes.add(response);
-        return response;
+        Cliente cliente = Cliente.builder()
+                .id(UUID.randomUUID())
+                .nome(request.getNome())
+                .documento(request.getDocumento())
+                .endereco(endereco)
+                .build();
+
+        Cliente.persist(cliente);
+        return toResponse(cliente);
     }
 
     public ClienteResponse buscarPorDocumento(String documento) {
-        return clientes.stream()
-                .filter(c -> c.getDocumento().equals(documento))
-                .findFirst()
+        Cliente cliente = Cliente.find("documento", documento).<Cliente>firstResultOptional()
                 .orElseThrow(() -> new NotFoundException("Cliente não encontrado."));
+        return toResponse(cliente);
+    }
+
+    private ClienteResponse toResponse(Cliente cliente) {
+        return ClienteResponse.builder()
+                .id(cliente.id)
+                .nome(cliente.nome)
+                .documento(cliente.documento)
+                .cep(cliente.endereco.cep)
+                .logradouro(cliente.endereco.logradouro)
+                .bairro(cliente.endereco.bairro)
+                .numero(cliente.endereco.numero)
+                .complemento(cliente.endereco.complemento)
+                .build();
     }
 }
-
-
