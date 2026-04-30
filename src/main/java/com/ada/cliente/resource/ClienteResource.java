@@ -3,7 +3,9 @@ package com.ada.cliente.resource;
 import com.ada.cliente.dto.ClienteRequest;
 import com.ada.cliente.dto.ClienteResponse;
 import com.ada.cliente.service.ClienteService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -19,18 +21,21 @@ public class ClienteResource {
     ClienteService clienteService;
 
     @GET
+    @RolesAllowed("Gerente")
     public List<ClienteResponse> listarTodos() {
         return clienteService.listarTodos();
     }
 
     @POST
-    public Response cadastrar(ClienteRequest request) {
+    @RolesAllowed({"Gerente", "Usuario"})
+    public Response cadastrar(@Valid ClienteRequest request) {
         ClienteResponse response = clienteService.cadastrar(request);
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
     @GET
     @Path("/{documento}")
+    @RolesAllowed({"Gerente", "Usuario"})
     public Response buscarPorDocumento(@PathParam("documento") String documento) {
         ClienteResponse response = clienteService.buscarPorDocumento(documento);
         return Response.ok(response).build();
